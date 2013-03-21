@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+    <h:body>
+        <ui:composition template="/sections/template.xhtml">
+            <ui:define name="body">
+                <h:form>   
+                    <p:focus context="panel"/>  
+
+                    <p:panel id="panel" header="#{msgs.signup}" style="width: 50%;height: 400px; margin: 0 auto;color:black;text-align: left">  
+
+                        <p:messages id="messages" /> 
+                        <h:panelGrid columns="3" cellpadding="5">  
+
+                            <h:outputText value="#{msgs.firstname} : " />  
+                            <p:inputText id="firstname" value="#{signup.firstname}">  
+                                <p:ajax event="keyup" update="out1" />  
+                                <p:ajax event="blur" update="out1" />
+                            </p:inputText>  
+                            <h:outputText id="out1" value="#{signup.cfirstname}" />  
+
+                            <h:outputText value="#{msgs.Surname} : " />  
+                            <p:inputText id="surname" value="#{signup.surname}">  
+                                <p:ajax event="keyup" update="out2" />  
+                                <p:ajax event="blur" update="out2" />  
+                            </p:inputText>  
+                            <h:outputText id="out2" value="#{signup.csurname}" />  
+
+                            <h:outputText value="#{msgs.username} : " />  
+                            <p:inputText id="username" value="#{signup.username}">  
+                                <p:ajax event="keyup" update="out3" />  
+                                <p:ajax event="blur" update="out3" />  
+                            </p:inputText>  
+                            <h:outputText id="out3" value="#{signup.cusername}" />  
+
+                            <h:outputText value="#{msgs.email} : " />  
+                            <p:inputText id="email" value="#{signup.email}">  
+                                <p:ajax event="keyup" update="out4" />  
+                                <p:ajax event="blur" update="out4" />  
+                            </p:inputText>  
+                            <h:outputText id="out4" value="#{signup.cemail}" />  
+
+                            <h:outputText value="#{msgs.password} : " />  
+                            <p:inputText type="password"   id="password" value="#{signup.password}">  
+                                <p:ajax event="keyup" update="out5" />  
+                                <p:ajax event="blur" update="out5" />  
+                                <p:ajax event="keyup" update="out6" />  
+                                <p:ajax event="blur" update="out6" />  
+                            </p:inputText >  
+                            <h:outputText id="out5" value="#{signup.cpassword}" />  
+
+
+                            <h:outputText value="#{msgs.retype_password} : " />  
+                            <p:inputText  type="password" id="retype_password" value="#{signup.retype_password}">  
+                                <p:ajax event="keyup" update="out6" />  
+                                <p:ajax event="blur" update="out6" />  
+                            </p:inputText >  
+                            <h:outputText id="out6" value="#{signup.cretype_password}" />
+
+                        </h:panelGrid>
+                    </p:panel>
+                    <br/>
+                    <p:commandButton value="#{msgs.signup}" update="panel" id="ajax"  
+                                     actionListener="#{signup.submit}" styleClass="ui-priority-primary"/>
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

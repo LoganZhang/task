@@ -1,0 +1,33 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+    <h:body>
+        <ui:composition template="/sections/template.xhtml">
+            <ui:define name="body"> 
+                <div id="signup" style="width: auto;height: 300px; color:black; text-align: center; background-color: lightblue">
+                    <p>  
+                        <h:outputText value="#{msgs.slogan}"/>
+                    </p>
+                    <p:button outcome="signup" value="#{msgs.signup}" style="font-size: 36pt">
+                    </p:button>
+                    <p>  
+                        <h:outputText value="#{msgs.writedown}"/>
+                    </p>
+                </div>
+                <br/>
+                <div id="slides">
+                    <h:form>
+                        <p:carousel itemStyle="width:400px;height:250px" rows="1"  itemStyleClass="carItem" pageLinks="4" autoPlayInterval="4000"  effect="easeInStrong" circular="true">  
+                            <p:graphicImage value="/resources/images/nature1.jpg"/>  
+                            <p:graphicImage value="/resources/images/nature2.jpg"/>  
+                            <p:graphicImage value="/resources/images/nature3.jpg"/>  
+                            <p:graphicImage value="/resources/images/nature4.jpg"/>  
+                        </p:carousel> 
+                    </h:form> 
+                </div>
+            </ui:define >
+        </ui:composition>
+    </h:body>
+</html>

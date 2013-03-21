@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+    <h:body>
+        <ui:composition template="/sections/template.xhtml">
+            <ui:define name="body">
+                <h:form id="form">   
+
+                    <p:focus context="panel1" />  
+
+
+                    <table style="width: 100%">
+                        <tr>
+
+                            <td style="width: 25% " valign="top">
+                                <p:panel id="panel2" header="#{msgs.detail}" style=" height: auto;text-align: center">  
+                                    <h:outputText value="#{task.time}"></h:outputText>
+                                </p:panel>
+
+                            </td>
+                            <td style="width: 50%" valign="top">
+                                <p:panel id="panel1" header="#{msgs.all_task}" style=" height: auto; text-align: center"> 
+
+                                    <p:focus context="newTask"/>  
+
+                                    <p:inputText id="newTask" value="#{task.new_task}" style="width: 100%; background-color: bisque ">
+                                    </p:inputText>
+                                    <div style="visibility: hidden">
+                                        <p:commandButton value="" actionListener="#{task.addTask}" update="panel1"/>  
+                                    </div>
+
+                                    <p:dataTable id="allTask" rendered="#{!task.taskEmpty}" var="taskentity" value="#{task.taskDataModel}"
+                                                 selection="#{task.selectedTask}" selectionMode="single">  
+
+                                        <p:ajax event="rowSelect" listener="#{task.onRowSelect}" update=":form:panel3 :form:panel2"/>  
+                                        
+
+                                        <p:column>  
+                                            #{taskentity.title}  
+                                        </p:column>  
+                                    </p:dataTable>
+                                </p:panel>
+                            </td>
+
+
+
+                            <td style="width: 25% " valign="top">
+                                <p:panel id="panel3" header="#{msgs.note}" style=" height: auto;text-align: center">  
+                                    <h:outputText value="#{task.time}"></h:outputText>
+
+                                </p:panel>
+
+                            </td>
+                        </tr>
+                    </table>
+
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

@@ -1,0 +1,81 @@
+<?xml-stylesheet type="text/css" href="index.css"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+    <f:view locale="#{user.locale}">
+        <h:head>
+            <title>
+                #{msgs.globleTitleText}
+            </title> 
+        </h:head>
+
+        <h:outputStylesheet library="css" name="index.css"  />
+        <h:body>
+            <table width="100%">
+                <tr>
+                    <td style="text-align: left;width: 50%">
+                        <div id="welcome" style="color: blue">
+                            <h:form>  
+                                <h:outputText value="#{msgs.welcome}"/>
+                                <h:selectOneMenu value="#{user.locale}" onchange="submit();" 
+                                                 valueChangeListener="#{user.localeChanged}">
+                                    <f:selectItems value="#{user.countriesInMap}" /> 
+                                </h:selectOneMenu>
+                            </h:form>  
+                        </div>
+                    </td>
+                    <td style="text-align: right;width: 50%">
+                        <h:form>  
+                            <h:panelGroup id="loginpanel" rendered="#{!user.status}">
+
+                                <div id="login" >
+                                    <h:outputLink value="faces/login.xhtml" title="login">
+                                        <h:outputText value="#{msgs.login}" />
+                                    </h:outputLink>
+                                </div>
+                            </h:panelGroup>
+                            <h:panelGroup id="logoutpanel" rendered="#{user.status}">
+
+                                <div id="logout" >
+
+                                    <p:commandLink id="nonAjax" actionListener="#{user.logout()}" ajax="false">  
+                                        <h:outputText value="#{msgs.logout}" />  
+                                    </p:commandLink> 
+                                </div>
+                            </h:panelGroup>
+
+                        </h:form>
+                    </td>
+                </tr>
+                <tr>
+
+                    <td style="width: available; text-align: left">
+                        <a href="http://www.sussex.ac.uk" target="_blank">
+                            <img src="/ToDoList/resources/images/uslogo.png" border="2" style="border:2px solid black;max-width:100%;" />
+                        </a>
+                    </td >
+                    <td style="text-align: right">
+                        <li><a href="/ToDoList"><h:outputText value="#{msgs.home}" /></a></li>
+                        <li><a href="/ToDoList/faces/task.xhtml"><h:outputText value="#{msgs.task}" /></a></li>
+
+                    </td>
+                </tr>
+            </table>
+
+            <ui:insert name="body"> </ui:insert>
+            <div id="bottom" style="width: auto;height: 200px; color:black; text-align: center;">
+                <p>
+                    <h:outputText value="#{msgs.copyright}" />
+                </p>
+                <p>
+                    <h:outputText value="#{msgs.module}" />
+                </p>
+            </div>
+        </h:body> 
+    </f:view>
+</html>
