@@ -15,12 +15,12 @@ import javax.persistence.Query;
 @Stateless
 public class TaskDaoBean implements TaskDao {
 
-    @PersistenceContext (unitName="TaskPU")
+    @PersistenceContext(unitName = "TaskPU")
     private EntityManager em;
 
     @Override
     public boolean addTask(TaskEntity task) {
-                try {
+        try {
             em.persist(task);
         } catch (Exception e) {
             e.printStackTrace();
@@ -31,10 +31,25 @@ public class TaskDaoBean implements TaskDao {
 
     @Override
     public List<TaskEntity> getTasksByUserId(Long userId) {
-                try {
+        try {
             Query q = em.createQuery("SELECT t FROM TaskEntity as t where t.uerId='" + userId + "'");
             if (q.getResultList() != null && !q.getResultList().isEmpty()) {
                 return q.getResultList();
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public TaskEntity getTaskByTaskBrokerId(long taskBrokerId) {
+        try {
+            Query q = em.createQuery("SELECT t FROM TaskEntity as t where t.taskBrokerID='" + taskBrokerId + "'");
+            if (q.getResultList() != null && !q.getResultList().isEmpty()) {
+                return (TaskEntity) q.getResultList().get(0);
             } else {
                 return null;
             }

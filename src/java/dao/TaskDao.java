@@ -17,4 +17,6 @@ public interface TaskDao {
 
     List<TaskEntity> getTasksByUserId(Long userId);
     
+    TaskEntity getTaskByTaskBrokerId(long taskBrokerId);
+    
 }

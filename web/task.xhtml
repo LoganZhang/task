@@ -17,7 +17,13 @@
 
                             <td style="width: 25% " valign="top">
                                 <p:panel id="panel2" header="#{msgs.detail}" style=" height: auto;text-align: center">  
-                                    <h:outputText value="#{task.time}"></h:outputText>
+                                    <h:panelGrid columns="2" columnClasses="column" cellpadding="5" rendered="#{task.viewTask != null}">  
+                                        <h:outputText value="#{msgs.title}" />  
+                                        <p:inplace editor="true">  
+                                            <p:inputText value="#{task.viewTask.title}" required="true" label="text"/>  
+                                            <p:ajax event="save" listener="#{task.test()}"/>
+                                        </p:inplace> 
+                                    </h:panelGrid>
                                 </p:panel>
 
                             </td>
@@ -36,7 +42,7 @@
                                                  selection="#{task.selectedTask}" selectionMode="single">  
 
                                         <p:ajax event="rowSelect" listener="#{task.onRowSelect}" update=":form:panel3 :form:panel2"/>  
-                                        
+
 
                                         <p:column>  
                                             #{taskentity.title}  
@@ -49,7 +55,7 @@
 
                             <td style="width: 25% " valign="top">
                                 <p:panel id="panel3" header="#{msgs.note}" style=" height: auto;text-align: center">  
-                                    <h:outputText value="#{task.time}"></h:outputText>
+
 
                                 </p:panel>
 

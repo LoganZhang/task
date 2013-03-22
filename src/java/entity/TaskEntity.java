@@ -21,6 +21,24 @@ public class TaskEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private Long uerId;
+    private long taskBrokerID;
+     private short priority;
+
+    public short getPriority() {
+        return priority;
+    }
+
+    public void setPriority(short priority) {
+        this.priority = priority;
+    }
+
+    public long getTaskBrokerID() {
+        return taskBrokerID;
+    }
+
+    public void setTaskBrokerID(long taskBrokerID) {
+        this.taskBrokerID = taskBrokerID;
+    }
 
     public Long getUerId() {
         return uerId;

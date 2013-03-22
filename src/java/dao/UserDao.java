@@ -10,6 +10,8 @@ public interface UserDao {
 	
 	public UserEntity selectById(int userId);
         
+        public boolean checkUsernameAvailability(String username);
+        
         public UserEntity selectByUsernameAndPassword(String username,String password);
 	
 	public boolean update(UserEntity user);

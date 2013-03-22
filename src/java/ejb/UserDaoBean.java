@@ -75,4 +75,19 @@ public class UserDaoBean implements UserDao {
             return null;
         }
     }
+
+    @Override
+    public boolean checkUsernameAvailability(String username) {
+               try {
+            Query q = em.createQuery("SELECT u FROM UserEntity as u where u.username='" + username + "'");
+            if (q.getResultList() != null && !q.getResultList().isEmpty()) {
+                return false;
+            } else {
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

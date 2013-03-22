@@ -1,5 +1,6 @@
 package core;
 
+import model.TaskDataModel;
 import dao.TaskDao;
 import dao.UserDao;
 import entity.TaskEntity;
@@ -19,10 +20,14 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
+import model.TaskModel;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.event.UnselectEvent;
 import uk.ac.susx.inf.ianw.webApps.taskBroker.ejb.TaskBrokerBeanRemote;
 import uk.ac.susx.inf.ianw.webApps.taskBroker.ejb.TaskBrokerException;
+import uk.ac.susx.inf.ianw.webApps.taskBroker.entity.Task;
+import utilities.DataService;
+import utilities.DateService;
 import utilities.EmailValidation;
 import utilities.Internationalization;
 import utilities.UserService;
@@ -38,11 +43,17 @@ public class TaskBean implements Serializable {
     @EJB
     TaskDao ejbBean;
     @EJB
-    TaskBrokerBeanRemote ettt;
-    
+    TaskBrokerBeanRemote taskBroker;
     private String new_task = Internationalization.getString("add");
-    private String node;
-    private String time;
+    private TaskModel viewTask = null;
+
+    public TaskModel getViewTask() {
+        return viewTask;
+    }
+
+    public void setViewTask(TaskModel viewTask) {
+        this.viewTask = viewTask;
+    }
 
     public String getNew_task() {
         return new_task;
@@ -52,61 +63,65 @@ public class TaskBean implements Serializable {
         this.new_task = new_task;
     }
 
-    public String getNode() {
-        return node;
-    }
-
-    public void setNode(String node) {
-        this.node = node;
-    }
-
-    public String getTime() {
-        return time;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
-    }
-
     public void addTask(ActionEvent actionEvent) {
         TaskEntity t = new TaskEntity();
         t.setTitle(this.new_task);
         Long userID = UserService.UserBean().getId();
+        String userName = UserService.UserBean().getUsername();
         t.setUerId(userID);
-        tasks.add(t);
-        ejbBean.addTask(t);
-        
-        
-         String[] a = new String[1];
-         a[0]= this.new_task;
+
         try {
-            ettt.registerUsers(a);
+            TaskModel model = new TaskModel();
+            Task task = new Task();
+            Date d = DateService.getTommorrow();
+            task.setDueDate(d);
+            taskBroker.allocateTask(task, userName);
+            
+            long taskBrokerId = taskBroker.allocateTask(task, userName);
+            t.setTaskBrokerID(taskBrokerId);
+
+            taskBroker.collectTask(taskBrokerId, userName);
+            ejbBean.addTask(t);
+
+            model.setId(t.getId());
+            model.setAllocated(task.getAllocated() == null ? null : task.getAllocated().getName());
+            model.setCompleted(task.isCompleted());
+            model.setDescription(task.getDescription());
+            model.setDueDate(task.getDueDate());
+            model.setPriority(t.getPriority());
+            model.setTaskBrokerID(task.getId());
+            model.setTitle(t.getTitle());
+            model.setProposer(task.getProposer() == null ? null : task.getProposer().getName());
+            model.setUerId(userID);
+
+            tasks.add(model);
+
         } catch (TaskBrokerException ex) {
             Logger.getLogger(TaskBean.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
         this.new_task = null;
     }
 
     @PostConstruct
     public void init() throws IOException {
 
-        UserBean bean = UserService.UserBean();
-        if (!bean.isStatus()) {
-            utilities.Redirect.goLogin();
-        }
-        Long userID = UserService.UserBean().getId();
-        if (userID != null) {
-            tasks = ejbBean.getTasksByUserId(userID);
-            if (tasks == null) {
-                tasks = new ArrayList<TaskEntity>();
+            UserBean bean = UserService.UserBean();
+            if (!bean.isStatus()) {
+                utilities.Redirect.goLogin();
             }
-            taskDataModel = new TaskDataModel(tasks);
-        }
+            Long userID = UserService.UserBean().getId();
+            if (userID != null) {
+                tasks = DataService.getTasksByUserId(userID, taskBroker, ejbBean);
+                if (tasks == null) {
+                    tasks = new ArrayList<TaskModel>();
+                }
+                taskDataModel = new TaskDataModel(tasks);
+            }
+        
     }
-    private TaskEntity selectedTask;
+    private TaskModel selectedTask;
     private TaskDataModel taskDataModel;
-    List<TaskEntity> tasks = null;
+    List<TaskModel> tasks = null;
 
     public TaskBean() {
     }
@@ -119,11 +134,11 @@ public class TaskBean implements Serializable {
         }
     }
 
-    public TaskEntity getSelectedTask() {
+    public TaskModel getSelectedTask() {
         return selectedTask;
     }
 
-    public void setSelectedTask(TaskEntity selectedTask) {
+    public void setSelectedTask(TaskModel selectedTask) {
         this.selectedTask = selectedTask;
     }
 
@@ -132,9 +147,11 @@ public class TaskBean implements Serializable {
     }
 
     public void onRowSelect(SelectEvent event) {
-        TaskEntity t = (TaskEntity) event.getObject();
+        TaskModel t = (TaskModel) event.getObject();
+        this.viewTask = t;
+    }
 
-        this.node = t.getTitle();
-        this.time = t.getTitle();
+    public void test() {
+        System.out.println("save!!!!");
     }
 }

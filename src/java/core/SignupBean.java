@@ -15,6 +15,8 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
+import uk.ac.susx.inf.ianw.webApps.taskBroker.ejb.TaskBrokerBeanRemote;
+import uk.ac.susx.inf.ianw.webApps.taskBroker.ejb.TaskBrokerException;
 import utilities.EmailValidation;
 import utilities.Internationalization;
 import utilities.UserService;
@@ -29,6 +31,8 @@ public class SignupBean implements Serializable {
 
     @EJB
     UserDao ejbBean;
+    @EJB
+    TaskBrokerBeanRemote taskBroker;
     private String firstname;
     private String surname;
     private String email;
@@ -101,8 +105,16 @@ public class SignupBean implements Serializable {
             this.fusername = true;
             return "";
         }
-        this.susername = true;
-        return Internationalization.getString("tick");
+
+        if (this.username == null || this.username.length() == 0 || ejbBean.checkUsernameAvailability(username) == false) {
+            this.susername = false;
+            return Internationalization.getString("username_not_available");
+        } else {
+            this.susername = true;
+            return Internationalization.getString("tick");
+        }
+
+
     }
 
     public String getCpassword() {
@@ -231,7 +243,18 @@ public class SignupBean implements Serializable {
         ue.setUsername(this.username);
         ue.setPassword(this.password);
 
-        ejbBean.insert(ue);
+        String[] userP = new String[1];
+        try {
+            userP[0] = this.username;
+            taskBroker.registerUsers(userP);
+            ejbBean.insert(ue);
+        } catch (TaskBrokerException ex) {
+            Logger.getLogger(TaskBean.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        
+
+
     }
 
     @PostConstruct
