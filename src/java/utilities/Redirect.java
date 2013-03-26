@@ -21,4 +21,9 @@ public class Redirect {
         FacesContext.getCurrentInstance().getExternalContext().redirect("login.xhtml");
         
     }
+    
+    public static void goTask() throws IOException {
+        FacesContext.getCurrentInstance().getExternalContext().redirect("task.xhtml");
+        
+    }
 }

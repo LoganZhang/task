@@ -1,6 +1,4 @@
-
 package dao;
-
 
 import entity.TaskEntity;
 import java.util.List;
@@ -15,8 +13,14 @@ public interface TaskDao {
 
     boolean addTask(TaskEntity task);
 
-    List<TaskEntity> getTasksByUserId(Long userId);
+    List<TaskEntity> getTasksByUserId(String username);
     
+        List<TaskEntity> getUnallocatedTasks();
+
+
     TaskEntity getTaskByTaskBrokerId(long taskBrokerId);
-    
+
+    boolean update(TaskEntity task);
+
+    boolean deleteById(Long taskID);
 }

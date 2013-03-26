@@ -25,6 +25,15 @@ public class UserBean implements Serializable {
     private String firstname;
     private String surname;
     private String username;
+    private String sort ="1"; 
+
+    public String getSort() {
+        return sort;
+    }
+
+    public void setSort(String sort) {
+        this.sort = sort;
+    }
     private Long id;
     private boolean status = false;
     private String m="m";
@@ -41,6 +50,10 @@ public class UserBean implements Serializable {
     }
 
     public String getLocale() {
+        if(locale==null)
+        {
+            locale = "en";
+        }
         return locale;
     }
 

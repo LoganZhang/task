@@ -25,6 +25,8 @@
                     <br/>
                     <p:commandButton value="#{msgs.login}" update="panel" id="ajax"  
                                      actionListener="#{signup.login}" styleClass="ui-priority-primary"/>
+                    <p:commandButton value="Super" update="panel" id="ajax1"  
+                                     actionListener="#{signup.test()}" styleClass="ui-priority-primary"/>
                 </h:form>
             </ui:define>
         </ui:composition>

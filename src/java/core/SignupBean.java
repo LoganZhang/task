@@ -106,7 +106,7 @@ public class SignupBean implements Serializable {
             return "";
         }
 
-        if (this.username == null || this.username.length() == 0 || ejbBean.checkUsernameAvailability(username) == false) {
+        if (this.username == null || this.username.length() == 0 || ejbBean.checkUsernameAvailability(username.toLowerCase()) == false) {
             this.susername = false;
             return Internationalization.getString("username_not_available");
         } else {
@@ -240,7 +240,7 @@ public class SignupBean implements Serializable {
         ue.setEmail(this.email);
         ue.setFirstname(this.firstname);
         ue.setSurname(this.surname);
-        ue.setUsername(this.username);
+        ue.setUsername(this.username.toLowerCase());
         ue.setPassword(this.password);
 
         String[] userP = new String[1];
@@ -251,8 +251,8 @@ public class SignupBean implements Serializable {
         } catch (TaskBrokerException ex) {
             Logger.getLogger(TaskBean.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        
+
+
 
 
     }
@@ -280,5 +280,24 @@ public class SignupBean implements Serializable {
             user.setStatus(true);
             return true;
         }
+    }
+
+    public void test() {
+        UserEntity ue = new UserEntity();
+        ue.setEmail("d@q.com");
+        ue.setFirstname("hao");
+        ue.setSurname("zhang");
+        ue.setUsername("a");
+        ue.setPassword("a");
+
+        String[] userP = new String[1];
+        try {
+            userP[0] = "a";
+            taskBroker.registerUsers(userP);
+            ejbBean.insert(ue);
+        } catch (TaskBrokerException ex) {
+            Logger.getLogger(TaskBean.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        login();
     }
 }

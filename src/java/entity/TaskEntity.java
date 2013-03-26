@@ -5,10 +5,16 @@
 package entity;
 
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Temporal;
 
 /**
  *
@@ -16,19 +22,81 @@ import javax.persistence.Id;
  */
 @Entity
 public class TaskEntity implements Serializable {
+
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private Long uerId;
     private long taskBrokerID;
-     private short priority;
+    private int priority;
+    private boolean completed;
+    private String proposer;
+    private String allocated;
+    private String note;
+    @Temporal(javax.persistence.TemporalType.DATE)
+    private Date dueDate;
+    @Temporal(javax.persistence.TemporalType.DATE)
+    private Date createDate;
 
-    public short getPriority() {
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+    
+
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(Date createDate) {
+        
+        this.createDate = createDate;        
+    }
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
+
+    public String getProposer() {
+        return proposer;
+    }
+
+    public void setProposer(String proposer) {
+        this.proposer = proposer;
+    }
+
+    public String getAllocated() {
+        return allocated;
+    }
+
+    public void setAllocated(String allocated) {
+        this.allocated = allocated;
+    }
+
+    public Date getDueDate() {
+        
+        
+        return dueDate;
+    }
+
+    public void setDueDate(Date dueDate) {
+        
+        this.dueDate = dueDate;
+    }
+
+    public int getPriority() {
         return priority;
     }
 
-    public void setPriority(short priority) {
+    public void setPriority(int priority) {
         this.priority = priority;
     }
 
@@ -61,11 +129,19 @@ public class TaskEntity implements Serializable {
         return title;
     }
 
+    public String getCreateDateString() {
+
+        SimpleDateFormat sf = new SimpleDateFormat("dd/MM/yyy");
+
+        return sf.format(this.createDate);
+
+    }
+
+
     public void setTitle(String title) {
         this.title = title;
     }
 
-    
     @Override
     public int hashCode() {
         int hash = 0;
@@ -90,5 +166,4 @@ public class TaskEntity implements Serializable {
     public String toString() {
         return "web[ id=" + id + " ]";
     }
-    
 }

@@ -1,6 +1,7 @@
 package dao;
 
 import entity.UserEntity;
+import java.util.List;
 import javax.ejb.Local;
 
 @Local
@@ -17,5 +18,7 @@ public interface UserDao {
 	public boolean update(UserEntity user);
 	
 	public boolean deleteById(int userId);
+        
+        public List<String> searchUser(String username);
 
 }

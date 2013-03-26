@@ -4,32 +4,29 @@ import model.TaskDataModel;
 import dao.TaskDao;
 import dao.UserDao;
 import entity.TaskEntity;
-import entity.UserEntity;
 import java.io.IOException;
 import javax.faces.bean.ViewScoped;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
-import javax.enterprise.context.SessionScoped;
-import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
-import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
-import model.TaskModel;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.event.UnselectEvent;
 import uk.ac.susx.inf.ianw.webApps.taskBroker.ejb.TaskBrokerBeanRemote;
 import uk.ac.susx.inf.ianw.webApps.taskBroker.ejb.TaskBrokerException;
 import uk.ac.susx.inf.ianw.webApps.taskBroker.entity.Task;
-import utilities.DataService;
 import utilities.DateService;
-import utilities.EmailValidation;
+import utilities.DueDateSort;
 import utilities.Internationalization;
+import utilities.PrioritySort;
+import utilities.Redirect;
 import utilities.UserService;
 
 /**
@@ -44,14 +41,26 @@ public class TaskBean implements Serializable {
     TaskDao ejbBean;
     @EJB
     TaskBrokerBeanRemote taskBroker;
+    @EJB
+    UserDao userBean;
     private String new_task = Internationalization.getString("add");
-    private TaskModel viewTask = null;
+    private TaskEntity viewTask = null;
+    private String allocated = "";
+    private boolean uncompleted = false;
 
-    public TaskModel getViewTask() {
+    public boolean isUncompleted() {
+        return uncompleted;
+    }
+
+    public void setUncompleted(boolean uncompleted) {
+        this.uncompleted = uncompleted;
+    }
+
+    public TaskEntity getViewTask() {
         return viewTask;
     }
 
-    public void setViewTask(TaskModel viewTask) {
+    public void setViewTask(TaskEntity viewTask) {
         this.viewTask = viewTask;
     }
 
@@ -71,30 +80,35 @@ public class TaskBean implements Serializable {
         t.setUerId(userID);
 
         try {
-            TaskModel model = new TaskModel();
             Task task = new Task();
-            Date d = DateService.getTommorrow();
-            task.setDueDate(d);
-            taskBroker.allocateTask(task, userName);
-            
+            Date date = DateService.getTommorrow();
+            task.setDueDate(date);
+
             long taskBrokerId = taskBroker.allocateTask(task, userName);
             t.setTaskBrokerID(taskBrokerId);
-
             taskBroker.collectTask(taskBrokerId, userName);
+
+            t.setAllocated(userName);
+            t.setCompleted(false);
+            t.setDueDate(date);
+            t.setPriority(5);
+            t.setProposer(userName);
+            t.setCreateDate(new Date());
+            t.setTaskBrokerID(taskBrokerId);
+
+
             ejbBean.addTask(t);
+            tasks.add(t);
 
-            model.setId(t.getId());
-            model.setAllocated(task.getAllocated() == null ? null : task.getAllocated().getName());
-            model.setCompleted(task.isCompleted());
-            model.setDescription(task.getDescription());
-            model.setDueDate(task.getDueDate());
-            model.setPriority(t.getPriority());
-            model.setTaskBrokerID(task.getId());
-            model.setTitle(t.getTitle());
-            model.setProposer(task.getProposer() == null ? null : task.getProposer().getName());
-            model.setUerId(userID);
 
-            tasks.add(model);
+            if (UserService.UserBean().getSort().equals("1")) {
+                PrioritySort comparatorP = new PrioritySort();
+                Collections.sort(tasks, comparatorP);
+            }
+            if (UserService.UserBean().getSort().equals("2")) {
+                DueDateSort comparatorP = new DueDateSort();
+                Collections.sort(tasks, comparatorP);
+            }
 
         } catch (TaskBrokerException ex) {
             Logger.getLogger(TaskBean.class.getName()).log(Level.SEVERE, null, ex);
@@ -105,23 +119,38 @@ public class TaskBean implements Serializable {
     @PostConstruct
     public void init() throws IOException {
 
-            UserBean bean = UserService.UserBean();
-            if (!bean.isStatus()) {
-                utilities.Redirect.goLogin();
+        UserBean bean = UserService.UserBean();
+        if (!bean.isStatus()) {
+            utilities.Redirect.goLogin();
+        }
+        Long userID = UserService.UserBean().getId();
+        if (userID != null) {
+            tasks = ejbBean.getTasksByUserId(UserService.UserBean().getUsername());
+            if (tasks == null) {
+                tasks = new ArrayList<TaskEntity>();
             }
-            Long userID = UserService.UserBean().getId();
-            if (userID != null) {
-                tasks = DataService.getTasksByUserId(userID, taskBroker, ejbBean);
-                if (tasks == null) {
-                    tasks = new ArrayList<TaskModel>();
-                }
-                taskDataModel = new TaskDataModel(tasks);
+
+
+
+            tasks2 = ejbBean.getUnallocatedTasks();
+            if (tasks2 == null) {
+                tasks2 = new ArrayList<TaskEntity>();
             }
-        
+            this.taskDataModel2 = new TaskDataModel(tasks2);
+
+
+            PrioritySort comparatorP = new PrioritySort();
+            Collections.sort(tasks, comparatorP);
+            this.taskDataModel = new TaskDataModel(tasks);
+
+        }
+
     }
-    private TaskModel selectedTask;
+    private TaskEntity selectedTask;
     private TaskDataModel taskDataModel;
-    List<TaskModel> tasks = null;
+    private TaskDataModel taskDataModel2;
+    List<TaskEntity> tasks = null;
+    List<TaskEntity> tasks2 = null;
 
     public TaskBean() {
     }
@@ -134,24 +163,196 @@ public class TaskBean implements Serializable {
         }
     }
 
-    public TaskModel getSelectedTask() {
+    public boolean isTaskEmpty2() {
+        if (tasks2 == null || tasks2.isEmpty()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public TaskEntity getSelectedTask() {
         return selectedTask;
     }
 
-    public void setSelectedTask(TaskModel selectedTask) {
+    public void setSelectedTask(TaskEntity selectedTask) {
         this.selectedTask = selectedTask;
     }
 
     public TaskDataModel getTaskDataModel() {
         return taskDataModel;
     }
+    
+    public TaskDataModel getTaskDataModel2() {
+        return taskDataModel2;
+    }
 
     public void onRowSelect(SelectEvent event) {
-        TaskModel t = (TaskModel) event.getObject();
+        TaskEntity t = (TaskEntity) event.getObject();
         this.viewTask = t;
+
+        this.allocated = t.getAllocated();
+        if (this.allocated == null) {
+            this.allocated = "";
+        }
+    }
+
+    public void onRowUnselect(UnselectEvent event) {
+        this.viewTask = new TaskEntity();
     }
 
     public void test() {
         System.out.println("save!!!!");
+    }
+
+    public void changeAllocated() {
+
+        if (this.viewTask.getAllocated() == null) {
+            this.viewTask.setAllocated(this.allocated);
+        } else {
+            try {
+                this.allocated = this.viewTask.getAllocated();
+                this.taskBroker.abandonTask(this.viewTask.getTaskBrokerID());
+                this.taskBroker.collectTask(this.viewTask.getTaskBrokerID(), this.viewTask.getAllocated());
+                this.ejbBean.update(viewTask);
+            } catch (TaskBrokerException ex) {
+                Logger.getLogger(TaskBean.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+
+        }
+    }
+
+    public void changeData() {
+        this.ejbBean.update(this.viewTask);
+        if (UserService.UserBean().getSort().equals("1")) {
+            PrioritySort comparatorP = new PrioritySort();
+            Collections.sort(tasks, comparatorP);
+        }
+        if (UserService.UserBean().getSort().equals("2")) {
+            DueDateSort comparatorP = new DueDateSort();
+            Collections.sort(tasks, comparatorP);
+        }
+    }
+
+    public void sortChanged() {
+        if (UserService.UserBean().getSort().equals("2")) {
+            PrioritySort comparatorP = new PrioritySort();
+            Collections.sort(tasks, comparatorP);
+        }
+        if (UserService.UserBean().getSort().equals("1")) {
+            DueDateSort comparatorP = new DueDateSort();
+            Collections.sort(tasks, comparatorP);
+        }
+        this.taskDataModel = new TaskDataModel(tasks);
+    }
+
+    public void changeComplete() {
+        if (this.viewTask.isCompleted()) {
+            try {
+                this.taskBroker.completeTask(this.viewTask.getTaskBrokerID());
+                this.ejbBean.update(this.viewTask);
+                uncompletedChange();
+
+            } catch (TaskBrokerException ex) {
+                Logger.getLogger(TaskBean.class
+                        .getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+    }
+
+    public void abandonTask() throws IOException {
+        this.viewTask.setAllocated(null);
+        try {
+            this.taskBroker.abandonTask(this.viewTask.getTaskBrokerID());
+            this.ejbBean.update(viewTask);
+            Redirect.goTask();
+
+
+
+        } catch (TaskBrokerException ex) {
+            Logger.getLogger(TaskBean.class
+                    .getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void assignTask() throws IOException {
+        if (this.allocated == null || this.allocated.equals("") || this.userBean.checkUsernameAvailability(this.allocated)) {
+            this.allocated = "";
+            return;
+        }
+        this.viewTask.setAllocated(this.allocated);
+        try {
+
+            this.taskBroker.collectTask(this.viewTask.getTaskBrokerID(), this.allocated);
+            this.ejbBean.update(viewTask);
+            Redirect.goTask();
+
+
+
+        } catch (TaskBrokerException ex) {
+            Logger.getLogger(TaskBean.class
+                    .getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void deleteTask() throws IOException {
+        this.ejbBean.deleteById(this.viewTask.getId());
+        Redirect.goTask();
+    }
+
+    public String getAllocated() {
+        return this.allocated;
+    }
+
+    public void setAllocated(String s) {
+        this.allocated = s;
+    }
+
+    public List<String> complete(String query) {
+        List<String> results = userBean.searchUser(query);
+        return results;
+    }
+
+    public void uncompletedChange() {
+        Long userID = UserService.UserBean().getId();
+        if (userID != null) {
+            tasks = ejbBean.getTasksByUserId(UserService.UserBean().getUsername());
+            if (tasks == null) {
+                tasks = new ArrayList<TaskEntity>();
+            }
+
+            List<TaskEntity> uncompleted = new ArrayList<TaskEntity>();
+            if (this.uncompleted == true) {
+                for (TaskEntity t : tasks) {
+                    if (t.isCompleted() == false) {
+                        uncompleted.add(t);
+                    }
+                }
+                tasks = uncompleted;
+            }
+
+            if (UserService.UserBean().getSort().equals("1")) {
+                PrioritySort comparatorP = new PrioritySort();
+                Collections.sort(tasks, comparatorP);
+            }
+            if (UserService.UserBean().getSort().equals("2")) {
+                DueDateSort comparatorP = new DueDateSort();
+                Collections.sort(tasks, comparatorP);
+            }
+
+            this.taskDataModel = new TaskDataModel(tasks);
+        }
+
+    }
+
+    public void tabChanged() {
+
+        tasks2 = ejbBean.getUnallocatedTasks();
+        if (tasks2 == null) {
+            tasks2 = new ArrayList<TaskEntity>();
+        }
+        this.taskDataModel2 = new TaskDataModel(tasks2);
     }
 }

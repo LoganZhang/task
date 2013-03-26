@@ -10,55 +10,146 @@
                 <h:form id="form">   
 
                     <p:focus context="panel1" />  
-
+                    <div style="visibility: hidden">
+                        <p:commandButton value="" actionListener="#{task.addTask}" id="add" update="panel1"/>  
+                    </div>
 
                     <table style="width: 100%">
                         <tr>
 
                             <td style="width: 25% " valign="top">
+
                                 <p:panel id="panel2" header="#{msgs.detail}" style=" height: auto;text-align: center">  
                                     <h:panelGrid columns="2" columnClasses="column" cellpadding="5" rendered="#{task.viewTask != null}">  
                                         <h:outputText value="#{msgs.title}" />  
-                                        <p:inplace editor="true">  
-                                            <p:inputText value="#{task.viewTask.title}" required="true" label="text"/>  
-                                            <p:ajax event="save" listener="#{task.test()}"/>
-                                        </p:inplace> 
+                                        <p:inplace editor="true" style="color: blue">  
+                                            <p:inputText value="#{task.viewTask.title}" required="true" label="text" style="width: 50%"/>  
+                                            <p:ajax event="save" listener="#{task.changeData()}" update=":form:panel1"/>
+                                        </p:inplace>
+
+                                        <h:outputText value="#{msgs.priority}" />  
+                                        <p:inplace editor="true" label="#{task.viewTask.priority}" effectSpeed="fast" style="color: blue">  
+                                            <h:selectOneMenu value="#{task.viewTask.priority}">  
+                                                <f:selectItem itemLabel="1" itemValue="1" />  
+                                                <f:selectItem itemLabel="2" itemValue="2" />  
+                                                <f:selectItem itemLabel="3" itemValue="3" />  
+                                                <f:selectItem itemLabel="4" itemValue="4" />  
+                                                <f:selectItem itemLabel="5" itemValue="5" />  
+                                            </h:selectOneMenu>  
+                                            <p:ajax event="save" listener="#{task.changeData()}" update="panel1"/>
+                                        </p:inplace>
+
+                                        <h:outputText value="#{msgs.assigned_user}"/>  
+                                        <p:inplace editor="true" style="color: blue" rendered="#{task.viewTask.allocated!=null}">  
+                                            <p:autoComplete  forceSelection="true" value="#{task.viewTask.allocated}" completeMethod="#{task.complete}" style="width: 50%"/>
+                                            <p:ajax event="save" listener="#{task.changeAllocated()}"/>
+                                        </p:inplace>
+
+                                        <p:autoComplete rendered="#{task.viewTask.allocated==null}"  forceSelection="true" value="#{task.allocated}" completeMethod="#{task.complete}" style="width: 50%"/>
+
+
+                                        <h:outputText value="#{msgs.requesting_user}" />  
+                                        <h:outputText value="#{task.viewTask.proposer}" />
+
+                                        <h:outputText value="#{msgs.create_date}" />
+                                        <h:outputText value="#{task.viewTask.createDateString}" />
+
+
+                                        <h:outputText value="#{msgs.due_date}" />
+                                        <p:inplace editor="true" style="color: blue">  
+                                            <p:calendar value="#{task.viewTask.dueDate}" pattern="MM/dd/yyyy HH:mm"  />  
+
+                                            <p:ajax event="save" listener="#{task.changeData()}" update="panel1"/>
+                                        </p:inplace>
+
+                                        <h:outputText value="#{msgs.completion}" />  
+
+                                        <p:selectBooleanButton value="#{task.viewTask.completed}" onLabel="Yes" offLabel="No" onIcon="ui-icon-check" offIcon="ui-icon-close" disabled="#{task.viewTask.completed}">  
+                                            <p:ajax update="form" listener="#{task.changeComplete()}"/>  
+                                        </p:selectBooleanButton>  
+
+                                        <p:commandButton rendered="#{task.viewTask.allocated!=null}" value="#{msgs.abandon}" update="form"  
+                                                         actionListener="#{task.abandonTask()}" styleClass="ui-priority-primary"/>
+
+                                        <p:commandButton rendered="#{task.viewTask.allocated==null}" value="#{msgs.assign}" update="form"  
+                                                         actionListener="#{task.assignTask()}" styleClass="ui-priority-primary"/>
+
+
+                                        <p:commandButton value="#{msgs.delete}" update="form" 
+                                                         actionListener="#{task.deleteTask()}" styleClass="ui-priority-primary"/>
                                     </h:panelGrid>
                                 </p:panel>
 
                             </td>
                             <td style="width: 50%" valign="top">
-                                <p:panel id="panel1" header="#{msgs.all_task}" style=" height: auto; text-align: center"> 
 
-                                    <p:focus context="newTask"/>  
+                                <p:tabView id="panel1" dynamic="true">
+                                    <p:ajax event="tabChange" listener="#{task.tabChanged()}" update="tab2"/>  
 
-                                    <p:inputText id="newTask" value="#{task.new_task}" style="width: 100%; background-color: bisque ">
-                                    </p:inputText>
-                                    <div style="visibility: hidden">
-                                        <p:commandButton value="" actionListener="#{task.addTask}" update="panel1"/>  
-                                    </div>
+                                    <p:tab id="tab1" title="#{msgs.my_tasks}">  
 
-                                    <p:dataTable id="allTask" rendered="#{!task.taskEmpty}" var="taskentity" value="#{task.taskDataModel}"
-                                                 selection="#{task.selectedTask}" selectionMode="single">  
+                                        <p:focus context="newTask"/> 
 
-                                        <p:ajax event="rowSelect" listener="#{task.onRowSelect}" update=":form:panel3 :form:panel2"/>  
+                                        <h:panelGrid columns="4" columnClasses="column" cellpadding="5">  
 
 
-                                        <p:column>  
-                                            #{taskentity.title}  
-                                        </p:column>  
-                                    </p:dataTable>
-                                </p:panel>
+                                            <h:outputText value="#{msgs.sort_by}"/>
+                                            <h:selectOneMenu value="#{user.sort}" valueChangeListener="#{task.sortChanged}">
+                                                <f:selectItem itemLabel="#{msgs.priority}" itemValue="1" />  
+                                                <f:selectItem itemLabel="#{msgs.due_date}" itemValue="2" />  
+                                                <p:ajax update="panel1"/>
+                                            </h:selectOneMenu>
+                                            <h:outputText value="#{msgs.uncompleted}"/>
+                                            <p:selectBooleanCheckbox value="#{task.uncompleted}">  
+                                                <p:ajax update="panel1" listener="#{task.uncompletedChange()}"/>  
+                                            </p:selectBooleanCheckbox> 
+
+                                        </h:panelGrid>
+
+                                        <p:inputText id="newTask" value="#{task.new_task}" style="width: 98.5%; background-color: bisque ">
+                                        </p:inputText>
+
+
+                                        <p:dataTable id="allTask" rendered="#{!task.taskEmpty}" var="taskentity" value="#{task.taskDataModel}"
+                                                     selection="#{task.selectedTask}" selectionMode="single">  
+
+                                            <p:ajax event="rowSelect" listener="#{task.onRowSelect}" update=":form:panel3 :form:panel2"/>  
+                                            <p:ajax event="rowUnselect" listener="#{task.onUnRowSelect}" update=":form:panel3 :form:panel2"/>  
+
+                                            <p:column  style=" width: 80%">  
+                                                #{taskentity.title}  
+                                            </p:column>  
+                                            <p:column style=" width: 20%">  
+                                                #{taskentity.createDateString}  
+                                            </p:column>  
+                                        </p:dataTable>
+                                    </p:tab>
+                                    <p:tab title="#{msgs.more_tasks}" id="tab2">
+
+                                        <p:dataTable id="moreTask" rendered="#{!task.taskEmpty2}" var="taskentity" value="#{task.taskDataModel2}"
+                                                     selection="#{task.selectedTask}" selectionMode="single">  
+
+                                            <p:ajax event="rowSelect" listener="#{task.onRowSelect}" update=":form:panel3 :form:panel2"/>  
+                                            <p:ajax event="rowUnselect" listener="#{task.onUnRowSelect}" update=":form:panel3 :form:panel2"/>  
+
+                                            <p:column  style=" width: 80%">  
+                                                #{taskentity.title}  
+                                            </p:column>  
+                                            <p:column style=" width: 20%">  
+                                                #{taskentity.createDateString}  
+                                            </p:column>  
+                                        </p:dataTable>
+                                    </p:tab> 
+                                </p:tabView>
                             </td>
-
-
-
                             <td style="width: 25% " valign="top">
                                 <p:panel id="panel3" header="#{msgs.note}" style=" height: auto;text-align: center">  
-
-
+                                    <h:panelGrid columns="1" columnClasses="column" cellpadding="5" rendered="#{task.viewTask != null}">  
+                                        <p:inputTextarea value="#{task.viewTask.note}" rows="6" cols="33">
+                                            <p:ajax event="blur" update="panel3" listener="#{task.changeData()}" />  
+                                        </p:inputTextarea>
+                                    </h:panelGrid>
                                 </p:panel>
-
                             </td>
                         </tr>
                     </table>
