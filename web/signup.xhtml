@@ -6,7 +6,7 @@
     <h:body>
         <ui:composition template="/sections/template.xhtml">
             <ui:define name="body">
-                <h:form>   
+                <h:form id="form">   
                     <p:focus context="panel"/>  
 
                     <p:panel id="panel" header="#{msgs.signup}" style="width: 50%;height: 400px; margin: 0 auto;color:black;text-align: left">  
@@ -64,6 +64,7 @@
                     <br/>
                     <p:commandButton value="#{msgs.signup}" update="panel" id="ajax"  
                                      actionListener="#{signup.submit}" styleClass="ui-priority-primary"/>
+                    <p:blockUI block=":form" trigger=":form:ajax"/> 
                 </h:form>
             </ui:define>
         </ui:composition>

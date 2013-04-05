@@ -1,0 +1,161 @@
+<?xml version='1.0' encoding='UTF-8'?><!-- Published by JAX-WS RI at http://jax-ws.dev.java.net. RI's version is Metro/2.2-b13 (branches/2.2-6964; 2012-01-09T18:04:18+0000) JAXWS-RI/2.2.6-promoted-b20 JAXWS/2.2 svn-revision#unknown. --><xs:schema xmlns:tns="http://ejb.taskBroker.webApps.ianw.inf.susx.ac.uk/" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0" targetNamespace="http://ejb.taskBroker.webApps.ianw.inf.susx.ac.uk/">
+
+<xs:element name="TaskBrokerException" type="tns:TaskBrokerException"/>
+
+<xs:element name="abandonTask" type="tns:abandonTask"/>
+
+<xs:element name="abandonTaskResponse" type="tns:abandonTaskResponse"/>
+
+<xs:element name="allocateTask" type="tns:allocateTask"/>
+
+<xs:element name="allocateTaskResponse" type="tns:allocateTaskResponse"/>
+
+<xs:element name="collectTask" type="tns:collectTask"/>
+
+<xs:element name="collectTaskResponse" type="tns:collectTaskResponse"/>
+
+<xs:element name="completeTask" type="tns:completeTask"/>
+
+<xs:element name="completeTaskResponse" type="tns:completeTaskResponse"/>
+
+<xs:element name="getTask" type="tns:getTask"/>
+
+<xs:element name="getTaskResponse" type="tns:getTaskResponse"/>
+
+<xs:element name="getUsername" type="tns:getUsername"/>
+
+<xs:element name="getUsernameResponse" type="tns:getUsernameResponse"/>
+
+<xs:element name="listTasks" type="tns:listTasks"/>
+
+<xs:element name="listTasksResponse" type="tns:listTasksResponse"/>
+
+<xs:element name="registerUsers" type="tns:registerUsers"/>
+
+<xs:element name="registerUsersResponse" type="tns:registerUsersResponse"/>
+
+<xs:complexType name="abandonTask">
+<xs:sequence>
+<xs:element name="taskId" type="xs:long"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="abandonTaskResponse">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="TaskBrokerException">
+<xs:sequence>
+<xs:element name="message" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="completeTask">
+<xs:sequence>
+<xs:element name="taskId" type="xs:long"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="completeTaskResponse">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="collectTask">
+<xs:sequence>
+<xs:element name="taskId" type="xs:long"/>
+<xs:element name="user" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="collectTaskResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:task" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="task">
+<xs:sequence>
+<xs:element name="allocated" type="tns:username" minOccurs="0"/>
+<xs:element name="completed" type="xs:boolean"/>
+<xs:element name="description" type="xs:string" minOccurs="0"/>
+<xs:element name="dueDate" type="xs:dateTime" minOccurs="0"/>
+<xs:element name="id" type="xs:long" minOccurs="0"/>
+<xs:element name="proposer" type="tns:username" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="username">
+<xs:sequence>
+<xs:element name="allocatedTasks" type="tns:task" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+<xs:element name="host" type="tns:host" minOccurs="0"/>
+<xs:element name="id" type="xs:long" minOccurs="0"/>
+<xs:element name="name" type="xs:string" minOccurs="0"/>
+<xs:element name="proposedTasks" type="tns:task" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="host">
+<xs:sequence>
+<xs:element name="hostname" type="xs:string" minOccurs="0"/>
+<xs:element name="id" type="xs:long" minOccurs="0"/>
+<xs:element name="users" type="tns:username" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="registerUsers">
+<xs:sequence>
+<xs:element name="users" type="xs:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="registerUsersResponse">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="listTasks">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="listTasksResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:task" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="getUsername">
+<xs:sequence>
+<xs:element name="user" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="getUsernameResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:username" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="getTask">
+<xs:sequence>
+<xs:element name="taskId" type="xs:long"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="getTaskResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:task" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="allocateTask">
+<xs:sequence>
+<xs:element name="task" type="tns:task" minOccurs="0"/>
+<xs:element name="user" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="allocateTaskResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:long"/>
+</xs:sequence>
+</xs:complexType>
+</xs:schema>

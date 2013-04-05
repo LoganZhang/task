@@ -15,7 +15,7 @@ import javax.persistence.Query;
 @Stateless
 public class TaskDaoBean implements TaskDao {
 
-    @PersistenceContext(unitName = "TaskPU")
+    @PersistenceContext(unitName = "UserPU")
     private EntityManager em;
     
     @Override

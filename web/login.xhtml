@@ -2,11 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:ui="http://java.sun.com/jsf/facelets"
-      xmlns:p="http://primefaces.org/ui">
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
     <h:body>
         <ui:composition template="/sections/template.xhtml">
             <ui:define name="body">
-                <h:form>   
+                <h:form id="form">   
                     <p:focus context="panel"/>  
 
                     <p:panel id="panel" header="#{msgs.login}" style="width: 50%;height: 200px; margin: 0 auto;color:black;text-align: left">  
@@ -21,12 +22,12 @@
                             <p:inputText type="password"   id="password" value="#{signup.password}">  
                             </p:inputText >  
                         </h:panelGrid>
+                        
                     </p:panel>
                     <br/>
-                    <p:commandButton value="#{msgs.login}" update="panel" id="ajax"  
+                    <p:commandButton value="#{msgs.login}" update="panel" id="loginbutton"
                                      actionListener="#{signup.login}" styleClass="ui-priority-primary"/>
-                    <p:commandButton value="Super" update="panel" id="ajax1"  
-                                     actionListener="#{signup.test()}" styleClass="ui-priority-primary"/>
+                    <p:blockUI block=":form" trigger=":form:loginbutton"/> 
                 </h:form>
             </ui:define>
         </ui:composition>

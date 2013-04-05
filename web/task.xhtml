@@ -68,14 +68,14 @@
                                             <p:ajax update="form" listener="#{task.changeComplete()}"/>  
                                         </p:selectBooleanButton>  
 
-                                        <p:commandButton rendered="#{task.viewTask.allocated!=null}" value="#{msgs.abandon}" update="form"  
+                                        <p:commandButton id="b1" rendered="#{task.viewTask.allocated!=null}" value="#{msgs.abandon}" update="form"  
                                                          actionListener="#{task.abandonTask()}" styleClass="ui-priority-primary"/>
 
-                                        <p:commandButton rendered="#{task.viewTask.allocated==null}" value="#{msgs.assign}" update="form"  
+                                        <p:commandButton id="b2" rendered="#{task.viewTask.allocated==null}" value="#{msgs.assign}" update="form"  
                                                          actionListener="#{task.assignTask()}" styleClass="ui-priority-primary"/>
 
 
-                                        <p:commandButton value="#{msgs.delete}" update="form" 
+                                        <p:commandButton id="b3" value="#{msgs.delete}" update="form" 
                                                          actionListener="#{task.deleteTask()}" styleClass="ui-priority-primary"/>
                                     </h:panelGrid>
                                 </p:panel>
@@ -153,7 +153,7 @@
                             </td>
                         </tr>
                     </table>
-
+                    <p:blockUI block=":form" trigger=":form:add :form:b1 :form:b2 :form:b3"/> 
                 </h:form>
             </ui:define>
         </ui:composition>

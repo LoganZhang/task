@@ -19,9 +19,8 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.event.ActionEvent;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.event.UnselectEvent;
-import uk.ac.susx.inf.ianw.webApps.taskBroker.ejb.TaskBrokerBeanRemote;
-import uk.ac.susx.inf.ianw.webApps.taskBroker.ejb.TaskBrokerException;
-import uk.ac.susx.inf.ianw.webApps.taskBroker.entity.Task;
+import uk.ac.susx.inf.ianw.webapps.taskbroker.ejb.Task;
+import uk.ac.susx.inf.ianw.webapps.taskbroker.ejb.TaskBrokerException_Exception;
 import utilities.DateService;
 import utilities.DueDateSort;
 import utilities.Internationalization;
@@ -39,8 +38,6 @@ public class TaskBean implements Serializable {
 
     @EJB
     TaskDao ejbBean;
-    @EJB
-    TaskBrokerBeanRemote taskBroker;
     @EJB
     UserDao userBean;
     private String new_task = Internationalization.getString("add");
@@ -73,21 +70,20 @@ public class TaskBean implements Serializable {
     }
 
     public void addTask(ActionEvent actionEvent) {
-        TaskEntity t = new TaskEntity();
-        t.setTitle(this.new_task);
-        Long userID = UserService.UserBean().getId();
-        String userName = UserService.UserBean().getUsername();
-        t.setUerId(userID);
-
         try {
+            TaskEntity t = new TaskEntity();
+            t.setTitle(this.new_task);
+            Long userID = UserService.UserBean().getId();
+            String userName = UserService.UserBean().getUsername();
+            t.setUerId(userID);
+
+
             Task task = new Task();
             Date date = DateService.getTommorrow();
-            task.setDueDate(date);
+            task.setDueDate(DateService.convertToXMLGregorianCalendar(date));
 
-            long taskBrokerId = taskBroker.allocateTask(task, userName);
+            long taskBrokerId = TaskBrokerRemote.allocateTask(task, userName);
             t.setTaskBrokerID(taskBrokerId);
-            taskBroker.collectTask(taskBrokerId, userName);
-
             t.setAllocated(userName);
             t.setCompleted(false);
             t.setDueDate(date);
@@ -110,10 +106,10 @@ public class TaskBean implements Serializable {
                 Collections.sort(tasks, comparatorP);
             }
 
-        } catch (TaskBrokerException ex) {
+            this.new_task = null;
+        } catch (TaskBrokerException_Exception ex) {
             Logger.getLogger(TaskBean.class.getName()).log(Level.SEVERE, null, ex);
         }
-        this.new_task = null;
     }
 
     @PostConstruct
@@ -182,7 +178,7 @@ public class TaskBean implements Serializable {
     public TaskDataModel getTaskDataModel() {
         return taskDataModel;
     }
-    
+
     public TaskDataModel getTaskDataModel2() {
         return taskDataModel2;
     }
@@ -210,14 +206,19 @@ public class TaskBean implements Serializable {
         if (this.viewTask.getAllocated() == null) {
             this.viewTask.setAllocated(this.allocated);
         } else {
+
+            this.allocated = this.viewTask.getAllocated();
             try {
-                this.allocated = this.viewTask.getAllocated();
-                this.taskBroker.abandonTask(this.viewTask.getTaskBrokerID());
-                this.taskBroker.collectTask(this.viewTask.getTaskBrokerID(), this.viewTask.getAllocated());
-                this.ejbBean.update(viewTask);
-            } catch (TaskBrokerException ex) {
+                TaskBrokerRemote.abandonTask(this.viewTask.getTaskBrokerID());
+            } catch (TaskBrokerException_Exception ex) {
                 Logger.getLogger(TaskBean.class.getName()).log(Level.SEVERE, null, ex);
             }
+            try {
+                TaskBrokerRemote.collectTask(this.viewTask.getTaskBrokerID(), this.viewTask.getAllocated());
+            } catch (TaskBrokerException_Exception ex) {
+                Logger.getLogger(TaskBean.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            this.ejbBean.update(viewTask);
 
 
         }
@@ -250,51 +251,54 @@ public class TaskBean implements Serializable {
     public void changeComplete() {
         if (this.viewTask.isCompleted()) {
             try {
-                this.taskBroker.completeTask(this.viewTask.getTaskBrokerID());
+                TaskBrokerRemote.completeTask(this.viewTask.getTaskBrokerID());
                 this.ejbBean.update(this.viewTask);
                 uncompletedChange();
 
-            } catch (TaskBrokerException ex) {
-                Logger.getLogger(TaskBean.class
-                        .getName()).log(Level.SEVERE, null, ex);
+
+            } catch (TaskBrokerException_Exception ex) {
+                Logger.getLogger(TaskBean.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
 
     }
 
     public void abandonTask() throws IOException {
-        this.viewTask.setAllocated(null);
         try {
-            this.taskBroker.abandonTask(this.viewTask.getTaskBrokerID());
+            this.viewTask.setAllocated(null);
+
+            TaskBrokerRemote.abandonTask(this.viewTask.getTaskBrokerID());
             this.ejbBean.update(viewTask);
             Redirect.goTask();
-
-
-
-        } catch (TaskBrokerException ex) {
-            Logger.getLogger(TaskBean.class
-                    .getName()).log(Level.SEVERE, null, ex);
+        } catch (TaskBrokerException_Exception ex) {
+            Logger.getLogger(TaskBean.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+
+
+
     }
 
     public void assignTask() throws IOException {
-        if (this.allocated == null || this.allocated.equals("") || this.userBean.checkUsernameAvailability(this.allocated)) {
-            this.allocated = "";
-            return;
-        }
-        this.viewTask.setAllocated(this.allocated);
         try {
+            if (this.allocated == null || this.allocated.equals("") || this.userBean.checkUsernameAvailability(this.allocated)) {
+                this.allocated = "";
+                return;
+            }
+            this.viewTask.setAllocated(this.allocated);
 
-            this.taskBroker.collectTask(this.viewTask.getTaskBrokerID(), this.allocated);
+
+
+            TaskBrokerRemote.collectTask(this.viewTask.getTaskBrokerID(), this.allocated);
             this.ejbBean.update(viewTask);
             Redirect.goTask();
-
-
-
-        } catch (TaskBrokerException ex) {
-            Logger.getLogger(TaskBean.class
-                    .getName()).log(Level.SEVERE, null, ex);
+        } catch (TaskBrokerException_Exception ex) {
+            Logger.getLogger(TaskBean.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+
+
+
     }
 
     public void deleteTask() throws IOException {

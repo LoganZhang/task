@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="system">
+    <system systemId="http://ec2-54-228-104-219.eu-west-1.compute.amazonaws.com:8080/TaskBrokerWebService/TaskBrokerWebService?wsdl" uri="wsdl/ec2-54-228-104-219.eu-west-1.compute.amazonaws.com_8080/TaskBrokerWebService/TaskBrokerWebService.wsdl"/>
+    <system systemId="http://ec2-54-228-104-219.eu-west-1.compute.amazonaws.com:8080/TaskBrokerWebService/TaskBrokerWebService?xsd=1" uri="wsdl/ec2-54-228-104-219.eu-west-1.compute.amazonaws.com_8080/TaskBrokerWebService/TaskBrokerWebService.xsd_1.xsd"/>
+    <system systemId="http://localhost:8080/TaskBrokerWebService/TaskBrokerWebService?wsdl" uri="wsdl/localhost_8080/TaskBrokerWebService/TaskBrokerWebService.wsdl"/>
+    <system systemId="http://localhost:8080/TaskBrokerWebService/TaskBrokerWebService?xsd=1" uri="wsdl/localhost_8080/TaskBrokerWebService/TaskBrokerWebService.xsd_1.xsd"/>
+    <system systemId="http://localhost:8080/TaskBrokerWebService/TaskBrokerWebService?WSDL" uri="wsdl/localhost_8080/TaskBrokerWebService/TaskBrokerWebService.wsdl"/>
+    <system systemId="http://localhost:8080/WebApplication4/NewWebService?wsdl" uri="wsdl/localhost_8080/WebApplication4/NewWebService.wsdl"/>
+    <system systemId="http://localhost:8080/WebApplication4/NewWebService?xsd=1" uri="wsdl/localhost_8080/WebApplication4/NewWebService.xsd_1.xsd"/>
+    <system systemId="http://localhost:8080/WebApplication4/NewWebService1?wsdl" uri="wsdl/localhost_8080/WebApplication4/NewWebService1.wsdl"/>
+    <system systemId="http://localhost:8080/WebApplication4/NewWebService1?xsd=1" uri="wsdl/localhost_8080/WebApplication4/NewWebService1.xsd_1.xsd"/>
+</catalog>

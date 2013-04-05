@@ -1,11 +1,16 @@
 package core;
 
+import java.rmi.*;
 import dao.TaskDao;
 import dao.UserDao;
 import entity.UserEntity;
 import java.io.IOException;
 import javax.faces.bean.ViewScoped;
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.rmi.RMISecurityManager;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
@@ -15,8 +20,8 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
-import uk.ac.susx.inf.ianw.webApps.taskBroker.ejb.TaskBrokerBeanRemote;
-import uk.ac.susx.inf.ianw.webApps.taskBroker.ejb.TaskBrokerException;
+import javax.xml.ws.WebServiceRef;
+import uk.ac.susx.inf.ianw.webapps.taskbroker.ejb.TaskBrokerException_Exception;
 import utilities.EmailValidation;
 import utilities.Internationalization;
 import utilities.UserService;
@@ -31,8 +36,6 @@ public class SignupBean implements Serializable {
 
     @EJB
     UserDao ejbBean;
-    @EJB
-    TaskBrokerBeanRemote taskBroker;
     private String firstname;
     private String surname;
     private String email;
@@ -51,7 +54,6 @@ public class SignupBean implements Serializable {
     private boolean fusername = false;
     private boolean fpassword = false;
     private boolean fretype_password = false;
-
     public String getCfirstname() {
 
         if (!this.ffirstname) {
@@ -65,6 +67,10 @@ public class SignupBean implements Serializable {
             this.sfirstname = true;
             return Internationalization.getString("tick");
         }
+    }
+
+    public SignupBean() {
+
     }
 
     public String getCsurname() {
@@ -218,6 +224,8 @@ public class SignupBean implements Serializable {
 
     public void login(ActionEvent actionEvent) {
 
+
+        
         if (this.username == null || this.password == null || this.username.isEmpty() || this.password.isEmpty()) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, Internationalization.getString("error"), ""));
         } else {
@@ -235,7 +243,7 @@ public class SignupBean implements Serializable {
         }
     }
 
-    private void insertUser() {
+    private void insertUser(){
         UserEntity ue = new UserEntity();
         ue.setEmail(this.email);
         ue.setFirstname(this.firstname);
@@ -243,17 +251,18 @@ public class SignupBean implements Serializable {
         ue.setUsername(this.username.toLowerCase());
         ue.setPassword(this.password);
 
-        String[] userP = new String[1];
-        try {
-            userP[0] = this.username;
-            taskBroker.registerUsers(userP);
-            ejbBean.insert(ue);
-        } catch (TaskBrokerException ex) {
-            Logger.getLogger(TaskBean.class.getName()).log(Level.SEVERE, null, ex);
+        List<String> userP = new ArrayList<String>();
+        userP.add(this.username);
+        if(ejbBean.checkUsernameAvailability(username.toLowerCase())==false)
+        {
+            return;
         }
-
-
-
+        try {
+            TaskBrokerRemote.registerUsers(userP);
+        } catch (TaskBrokerException_Exception ex) {
+            Logger.getLogger(SignupBean.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        ejbBean.insert(ue);
 
     }
 
@@ -264,10 +273,11 @@ public class SignupBean implements Serializable {
             utilities.Redirect.goHome();
         }
     }
-
+    
     private boolean login() {
         UserEntity ue = ejbBean.selectByUsernameAndPassword(username, password);
         if (ue == null) {
+            
             return false;
         } else {
             FacesContext context = FacesContext.getCurrentInstance();
@@ -282,22 +292,4 @@ public class SignupBean implements Serializable {
         }
     }
 
-    public void test() {
-        UserEntity ue = new UserEntity();
-        ue.setEmail("d@q.com");
-        ue.setFirstname("hao");
-        ue.setSurname("zhang");
-        ue.setUsername("a");
-        ue.setPassword("a");
-
-        String[] userP = new String[1];
-        try {
-            userP[0] = "a";
-            taskBroker.registerUsers(userP);
-            ejbBean.insert(ue);
-        } catch (TaskBrokerException ex) {
-            Logger.getLogger(TaskBean.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        login();
-    }
 }
