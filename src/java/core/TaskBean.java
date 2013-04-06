@@ -4,6 +4,7 @@ import model.TaskDataModel;
 import dao.TaskDao;
 import dao.UserDao;
 import entity.TaskEntity;
+import entity.UserEntity;
 import java.io.IOException;
 import javax.faces.bean.ViewScoped;
 import java.io.Serializable;
@@ -16,7 +17,9 @@ import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
+import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
+import javax.servlet.http.HttpServletRequest;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.event.UnselectEvent;
 import uk.ac.susx.inf.ianw.webapps.taskbroker.ejb.Task;
@@ -44,6 +47,7 @@ public class TaskBean implements Serializable {
     private TaskEntity viewTask = null;
     private String allocated = "";
     private boolean uncompleted = false;
+    private String username_remote = null;
 
     public boolean isUncompleted() {
         return uncompleted;
@@ -115,6 +119,10 @@ public class TaskBean implements Serializable {
     @PostConstruct
     public void init() throws IOException {
 
+        FacesContext context = FacesContext.getCurrentInstance();
+        HttpServletRequest request = (HttpServletRequest) context.getExternalContext().getRequest();
+        username_remote = request.getRemoteUser();
+        login();
         UserBean bean = UserService.UserBean();
         if (!bean.isStatus()) {
             utilities.Redirect.goLogin();
@@ -141,6 +149,24 @@ public class TaskBean implements Serializable {
 
         }
 
+    }
+
+    private boolean login() {
+        UserEntity ue = userBean.selectByName(username_remote);
+        if (ue == null) {
+
+            return false;
+        } else {
+            FacesContext context = FacesContext.getCurrentInstance();
+            UserBean user = context.getApplication().evaluateExpressionGet(context, "#{user}", UserBean.class);
+            user.setId(ue.getId());
+            user.setEmail(ue.getEmail());
+            user.setFirstname(ue.getFirstname());
+            user.setSurname(ue.getSurname());
+            user.setUsername(ue.getUsername());
+            user.setStatus(true);
+            return true;
+        }
     }
     private TaskEntity selectedTask;
     private TaskDataModel taskDataModel;

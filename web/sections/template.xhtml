@@ -34,7 +34,7 @@
                             <h:panelGroup id="loginpanel" rendered="#{!user.status}">
 
                                 <div id="login" >
-                                    <h:outputLink value="faces/login.xhtml" title="login">
+                                    <h:outputLink value="/ToDoList/faces/login.xhtml" title="login">
                                         <h:outputText value="#{msgs.login}" />
                                     </h:outputLink>
                                 </div>
@@ -69,12 +69,14 @@
 
             <ui:insert name="body"> </ui:insert>
             <div id="bottom" style="width: auto;height: 200px; color:black; text-align: center;">
-                <p>
-                    <h:outputText value="#{msgs.copyright}" />
-                </p>
-                <p>
-                    <h:outputText value="#{msgs.module}" />
-                </p>
+                <h:form>
+                    <p>
+                        <h:outputText value="#{msgs.copyright}" />
+                    </p>
+                    <p>
+                        <h:outputText value="#{msgs.module}" />
+                    </p>
+                </h:form>
             </div>
         </h:body> 
     </f:view>

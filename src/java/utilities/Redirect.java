@@ -23,7 +23,7 @@ public class Redirect {
     }
     
     public static void goTask() throws IOException {
-        FacesContext.getCurrentInstance().getExternalContext().redirect("task.xhtml");
+        FacesContext.getCurrentInstance().getExternalContext().redirect("/ToDoList/faces/task.xhtml");
         
     }
 }

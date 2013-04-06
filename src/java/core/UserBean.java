@@ -11,6 +11,8 @@ import javax.enterprise.context.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.inject.Named;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  *
@@ -25,7 +27,7 @@ public class UserBean implements Serializable {
     private String firstname;
     private String surname;
     private String username;
-    private String sort ="1"; 
+    private String sort = "1";
 
     public String getSort() {
         return sort;
@@ -36,7 +38,7 @@ public class UserBean implements Serializable {
     }
     private Long id;
     private boolean status = false;
-    private String m="m";
+    private String m = "";
     private static Map<String, Object> countries;
 
     static {
@@ -50,8 +52,7 @@ public class UserBean implements Serializable {
     }
 
     public String getLocale() {
-        if(locale==null)
-        {
+        if (locale == null) {
             locale = "en";
         }
         return locale;
@@ -59,9 +60,9 @@ public class UserBean implements Serializable {
 
     public String getM() {
 
-        if (this.status == false) {
+        if (this.status == true) {
             try {
-                utilities.Redirect.goLogin();
+                utilities.Redirect.goTask();
             } catch (IOException ex) {
                 Logger.getLogger(UserBean.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -134,6 +135,12 @@ public class UserBean implements Serializable {
     }
 
     public boolean isStatus() {
+        FacesContext context = FacesContext.getCurrentInstance();
+        HttpServletRequest request = (HttpServletRequest) context.getExternalContext().getRequest();
+        String username_remote = request.getRemoteUser();
+        if (username_remote != null && username_remote.isEmpty() == false) {
+            this.status = true;
+        }
         return status;
     }
 
@@ -150,6 +157,13 @@ public class UserBean implements Serializable {
     }
 
     public void logout() {
+        FacesContext context = FacesContext.getCurrentInstance();
+        HttpServletRequest request = (HttpServletRequest) context.getExternalContext().getRequest();
+        try {
+            request.logout();
+        } catch (ServletException ex) {
+            Logger.getLogger(UserBean.class.getName()).log(Level.SEVERE, null, ex);
+        }
         this.status = false;
         try {
             FacesContext.getCurrentInstance().getExternalContext().redirect("/ToDoList/");

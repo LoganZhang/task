@@ -7,30 +7,25 @@
     <h:body>
         <ui:composition template="/sections/template.xhtml">
             <ui:define name="body">
-                <h:form id="form">   
-                    <p:focus context="panel"/>  
+                <p:panel id="panel" header="#{msgs.login}" style="width: 50%;height: 200px; margin: 0 auto;color:black;text-align: left">  
 
-                    <p:panel id="panel" header="#{msgs.login}" style="width: 50%;height: 200px; margin: 0 auto;color:black;text-align: left">  
+                    <form method="post" action="j_security_check">
+                        <h:panelGrid columns="2">
+                            <h:outputLabel for="j_username" value="#{msgs.username} : " />
+                            <input type="text" name="j_username" />
 
-                        <p:messages id="messages" /> 
-                        <h:panelGrid columns="2" cellpadding="5">  
-                            <h:outputText value="#{msgs.username} : " />  
-                            <p:inputText id="username" value="#{signup.username}">  
-                            </p:inputText>  
+                            <h:outputLabel for="j_password" value="#{msgs.password} : " />
+                            <input type="password" name="j_password" />
 
-                            <h:outputText value="#{msgs.password} : " />  
-                            <p:inputText type="password"   id="password" value="#{signup.password}">  
-                            </p:inputText >  
+                            <h:outputText value="" />
+                            <h:panelGrid columns="2">
+                                <input type="submit" name="submit" value="#{msgs.login}" />
+                                
+                            </h:panelGrid>
                         </h:panelGrid>
-                        
-                    </p:panel>
-                    <br/>
-                    <p:commandButton value="#{msgs.login}" update="panel" id="loginbutton"
-                                     actionListener="#{signup.login}" styleClass="ui-priority-primary"/>
-                    <p:blockUI block=":form" trigger=":form:loginbutton"/> 
-                </h:form>
+                    </form>
+                </p:panel>
             </ui:define>
         </ui:composition>
     </h:body>
 </html>
-

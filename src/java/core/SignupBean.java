@@ -20,6 +20,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.ws.WebServiceRef;
 import uk.ac.susx.inf.ianw.webapps.taskbroker.ejb.TaskBrokerException_Exception;
 import utilities.EmailValidation;
@@ -54,6 +55,7 @@ public class SignupBean implements Serializable {
     private boolean fusername = false;
     private boolean fpassword = false;
     private boolean fretype_password = false;
+
     public String getCfirstname() {
 
         if (!this.ffirstname) {
@@ -70,7 +72,6 @@ public class SignupBean implements Serializable {
     }
 
     public SignupBean() {
-
     }
 
     public String getCsurname() {
@@ -222,41 +223,21 @@ public class SignupBean implements Serializable {
         }
     }
 
-    public void login(ActionEvent actionEvent) {
-
-
-        
-        if (this.username == null || this.password == null || this.username.isEmpty() || this.password.isEmpty()) {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, Internationalization.getString("error"), ""));
-        } else {
-            try {
-                if (login()) {
-                    FacesContext.getCurrentInstance().getExternalContext().redirect("task.xhtml");
-                } else {
-                    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, Internationalization.getString("error"), ""));
-                }
-
-
-            } catch (IOException ex) {
-                Logger.getLogger(SignupBean.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }
-
-    private void insertUser(){
+    private void insertUser() {
         UserEntity ue = new UserEntity();
         ue.setEmail(this.email);
         ue.setFirstname(this.firstname);
         ue.setSurname(this.surname);
         ue.setUsername(this.username.toLowerCase());
         ue.setPassword(this.password);
+        ue.setUser_group("user");
+
+        if (ejbBean.checkUsernameAvailability(username.toLowerCase()) == false) {
+            return;
+        }
 
         List<String> userP = new ArrayList<String>();
         userP.add(this.username);
-        if(ejbBean.checkUsernameAvailability(username.toLowerCase())==false)
-        {
-            return;
-        }
         try {
             TaskBrokerRemote.registerUsers(userP);
         } catch (TaskBrokerException_Exception ex) {
@@ -273,23 +254,4 @@ public class SignupBean implements Serializable {
             utilities.Redirect.goHome();
         }
     }
-    
-    private boolean login() {
-        UserEntity ue = ejbBean.selectByUsernameAndPassword(username, password);
-        if (ue == null) {
-            
-            return false;
-        } else {
-            FacesContext context = FacesContext.getCurrentInstance();
-            UserBean user = context.getApplication().evaluateExpressionGet(context, "#{user}", UserBean.class);
-            user.setId(ue.getId());
-            user.setEmail(ue.getEmail());
-            user.setFirstname(ue.getFirstname());
-            user.setSurname(ue.getSurname());
-            user.setUsername(ue.getUsername());
-            user.setStatus(true);
-            return true;
-        }
-    }
-
 }

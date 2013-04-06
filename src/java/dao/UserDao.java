@@ -11,6 +11,9 @@ public interface UserDao {
 	
 	public UserEntity selectById(int userId);
         
+        public UserEntity selectByName(String name);
+        
+        
         public boolean checkUsernameAvailability(String username);
         
         public UserEntity selectByUsernameAndPassword(String username,String password);
